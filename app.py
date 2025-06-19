@@ -43,10 +43,12 @@ races = [('Australia', 1),
 def load_results(year, race_number): #function to load results from fastf1 and save in needed variables
     try:
         race_session = fastf1.get_session(2025, race_number, 'R')
-        race_session.load()
+        race_session.load(laps=True)
         race_results = race_session.results#gets results
+        laps = race_session.laps
     except:
         race_results = None #sets results to none if race hasnt happened yet to avoid errors
+        laps = None
 
     try:
         quali_session = fastf1.get_session(2025, race_number, 'Q')
@@ -55,7 +57,7 @@ def load_results(year, race_number): #function to load results from fastf1 and s
     except:
         quali_results = None
 
-    return race_results, quali_results #returns results to be plotted
+    return race_results, quali_results, laps #returns results to be plotted
 
 def get_position(results, driver_initials):
     if results is None:
@@ -72,11 +74,12 @@ carlos_results = []
 alex_qualifying = [] #intiialises results arrays
 carlos_qualifying = []
 race_names = []
+laps_list = []
 
 
 
 for race_name, race_number in races:
-    race_results, quali_results = load_results(2025, race_number)
+    race_results, quali_results, laps = load_results(2025, race_number)
 
     alex_results.append(get_position(race_results, 'ALB'))#adds the correct data to corrects arrays
     carlos_results.append(get_position(race_results, 'SAI'))
@@ -84,6 +87,7 @@ for race_name, race_number in races:
     alex_qualifying.append(get_position(quali_results, 'ALB'))
     carlos_qualifying.append(get_position(quali_results, 'SAI'))
 
+    laps_list.append(laps)
     race_names.append(race_name) #gets the race name to plot
 
 
@@ -139,3 +143,31 @@ else:
     ax.legend() #shows a key to link drivers and lines
     st.pyplot(fig) #displays graph
 
+    # def plot_tyre_pie(laps, Driver_initials):
+    #     driver_laps = laps.pick_driver(Driver_initials)
+    #     compound_counts = driver_laps['Compound'].value_counts()
+        
+    #     plt.figure(figsize=(6,6))
+    #     plt.pie(compound_counts, labels=compound_counts.index, autopct='%1.1f%%', startangle=140)
+    #     plt.title(f'Tyre Usage for {Driver_initials}')
+    #     plt.show()
+
+st.header("Tyre Usage Pie Chart")
+
+selected_race = st.selectbox("Select Race", race_names)#gets race and driver to make pie chart
+selected_driver = st.radio("Select Driver", ['Alex (ALB)', 'Carlos (SAI)'])
+
+race_index = race_names.index(selected_race)
+laps_for_race = laps_list[race_index]
+
+if laps_for_race is not None:
+    driver_initials = 'ALB' if selected_driver.startswith('Alex') else 'SAI'
+    driver_laps = laps_for_race.pick_driver(driver_initials)
+    compound_counts = driver_laps['Compound'].value_counts()
+    
+    fig2, ax2 = plt.subplots(figsize=(5,5)) #draws pie chart
+    ax2.pie(compound_counts, labels=compound_counts.index, autopct='%1.1f%%', startangle=140)
+    ax2.set_title(f'Tyre Usage for {driver_initials} at {selected_race}')
+    st.pyplot(fig2)
+else:
+    st.write(f"No lap data available for {selected_race}") #shows message for if there was no results
