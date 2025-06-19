@@ -17,38 +17,80 @@ races = [('Australia', 1),
          ('Spain', 9), 
          ('Canada', 10)]
 
+
+@st.cache_data(show_spinner= True)
+def load_results(year, race_number):
+    try:
+        race_session = fastf1.get_session(2025, race_number, 'R')
+        race_session.load()
+        race_results = race_session.results
+    except:
+        race_results = None
+
+    try:
+        quali_session = fastf1.get_session(2025, race_number, 'Q')
+        quali_session.load()
+        quali_results = quali_session.results
+    except:
+        quali_results = None
+
+    return race_results, quali_results
+
+def get_position(results, driver_initials):
+    if results is None:
+        return None
+    position = results[results['Abbreviation'] == driver_initials]['Position']
+    return int(position.values[0]) if not position.empty else None
+
+    
+
+        
+
 alex_results = []
 carlos_results = []
 alex_qualifying = []
 carlos_qualifying = []
 race_names = []
 
-for race_name, round_number in races:
-    try:
-        race_session = fastf1.get_session(2025, round_number, 'R')
-        race_session.load()
-        race_results = race_session.results
 
-        alex_results.append(race_results[race_results['Abbreviation'] == 'ALB']['Position'].values[0])
-        carlos_results.append(race_results[race_results['Abbreviation'] == 'SAI']['Position'].values[0])
 
-    except:
-        alex_results.append(None)
-        carlos_results.append(None)
+for race_name, race_number in races:
+    race_results, quali_results = load_results(2025, race_number)
 
-    try:
-        quali_session = fastf1.get_session(2025, round_number, 'Q')
-        quali_session.load()
-        quali_results = quali_session.results
+    alex_results.append(get_position(race_results, 'ALB'))
+    carlos_results.append(get_position(race_results, 'SAI'))
 
-        alex_qualifying.append(quali_results[quali_results['Abbreviation'] == 'ALB']['Position'].values[0])
-        carlos_qualifying.append(quali_results[quali_results['Abbreviation'] == 'SAI']['Position'].values[0])
-
-    except:
-        alex_qualifying.append(None)
-        carlos_qualifying.append(None)
+    alex_qualifying.append(get_position(quali_results, 'ALB'))
+    carlos_qualifying.append(get_position(quali_results, 'SAI'))
 
     race_names.append(race_name)
+
+# for race_name, round_number in races:
+#     try:
+#         race_session = fastf1.get_session(2025, round_number, 'R')
+#         race_session.load()
+#         race_results = race_session.results
+
+#         alex_results.append(race_results[race_results['Abbreviation'] == 'ALB']['Position'].values[0])
+#         carlos_results.append(race_results[race_results['Abbreviation'] == 'SAI']['Position'].values[0])
+
+#     except:
+#         alex_results.append(None)
+#         carlos_results.append(None)
+
+#     try:
+#         quali_session = fastf1.get_session(2025, round_number, 'Q')
+#         quali_session.load()
+#         quali_results = quali_session.results
+
+#         alex_qualifying.append(quali_results[quali_results['Abbreviation'] == 'ALB']['Position'].values[0])
+#         carlos_qualifying.append(quali_results[quali_results['Abbreviation'] == 'SAI']['Position'].values[0])
+
+#     except:
+#         alex_qualifying.append(None)
+#         carlos_qualifying.append(None)
+
+#     race_names.append(race_name)
 
 results_dataframe = pd.DataFrame({
     'Race': race_names,
@@ -75,10 +117,12 @@ show_Carlos = st.checkbox("Carlos")
 if page == "Race Results":
     st.header("Race Results Comparisons")
     df = results_dataframe
+    title = "Race Results"
 
 else:
     st.header("Qualifying Positions Comparisons")
     df = qualifying_dataframe
+    title = "Qualifying Position"
 
 fig, ax = plt.subplots()
 
@@ -96,7 +140,7 @@ else:
     ax.set_xticklabels(df['Race'], rotation = 45)
     ax.invert_yaxis()
     ax.set_ylabel("Results")
-    ax.set_title("Race Results")
+    ax.set_title(title)
     ax.legend()
     st.pyplot(fig)
 
