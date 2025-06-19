@@ -15,7 +15,22 @@ races = [('Australia', 1),
          ('Italy', 7), 
          ('Monaco', 8), 
          ('Spain', 9), 
-         ('Canada', 10)]
+         ('Canada', 10),
+         ('Austria', 11),
+         ('United Kingdom', 12),
+         ('Belgium', 13),
+         ('Hungary', 14),
+         ('Netherlands', 15),
+         ('Italy', 16),
+         ('Azerbaijan', 17),
+         ('Singapore', 18),
+         ('USA', 19),
+         ('Mexico', 20),
+         ('Brazil', 21),
+         ('USA', 22),
+         ('Qatar', 23),
+         ('Abu Dhabi', 24)
+         ]
 
 
 @st.cache_data(show_spinner= True)
@@ -137,7 +152,7 @@ else:
         ax.plot(x, df['Carlos'], marker = 's', linestyle = '--', color = 'red', label = 'SAI')
 
     ax.set_xticks(x)
-    ax.set_xticklabels(df['Race'], rotation = 45)
+    ax.set_xticklabels(df['Race'], rotation = 90)
     ax.invert_yaxis()
     ax.set_ylabel("Results")
     ax.set_title(title)
