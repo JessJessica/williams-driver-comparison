@@ -75,6 +75,11 @@ alex_qualifying = [] #intiialises results arrays
 carlos_qualifying = []
 race_names = []
 laps_list = []
+alex_points = []
+carlos_points = []
+points_awarded = {
+    1: 25, 2:18, 3:15, 4:12, 5:10, 6:8, 7:6, 8:4, 9:2, 10:1
+}
 
 
 
@@ -86,6 +91,12 @@ for race_name, race_number in races:
 
     alex_qualifying.append(get_position(quali_results, 'ALB'))
     carlos_qualifying.append(get_position(quali_results, 'SAI'))
+
+    alex_pos = get_position(race_results, 'ALB')
+    carlos_pos = get_position(race_results, 'SAI')
+
+    alex_points.append(points_awarded.get(alex_pos, 0))
+    carlos_points.append(points_awarded.get(carlos_pos, 0))
 
     laps_list.append(laps)
     race_names.append(race_name) #gets the race name to plot
@@ -171,3 +182,15 @@ if laps_for_race is not None:
     st.pyplot(fig2)
 else:
     st.write(f"No lap data available for {selected_race}") #shows message for if there was no results
+
+st.subheader("Championship Points")
+total_alex = sum(alex_points)
+total_carlos = sum(carlos_points)
+
+points_df = pd.DataFrame({
+    "Driver": ["Alex Albon", "Carlos Sainz"],
+    "Points": [total_alex, total_carlos]
+})
+
+st.bar_chart(points_df.set_index("Driver"))
+
