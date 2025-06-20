@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import fastf1
 
 
+
 fastf1.Cache.enable_cache('cache') #sets API data to be stored in 'cache'
 
 races = [('Australia', 1), 
@@ -77,6 +78,8 @@ race_names = []
 laps_list = []
 alex_points = []
 carlos_points = []
+alex_gain = []
+carlos_gain = []
 points_awarded = {
     1: 25, 2:18, 3:15, 4:12, 5:10, 6:8, 7:6, 8:4, 9:2, 10:1
 }
@@ -98,6 +101,22 @@ for race_name, race_number in races:
     alex_points.append(points_awarded.get(alex_pos, 0))
     carlos_points.append(points_awarded.get(carlos_pos, 0))
 
+    if race_results is not None:
+        try:
+            alex_start = race_results[race_results['Abbreviation'] == 'ALB']['GridPosition'].values[0]
+            alex_finish = race_results[race_results['Abbreviation'] == 'ALB']['Position'].values[0]
+            alex_gain.append(alex_start - alex_finish)
+
+            carlos_start = race_results[race_results['Abbreviation'] == 'SAI']['GridPosition'].values[0]
+            carlos_finish = race_results[race_results['Abbreviation'] == 'SAI']['Position'].values[0]
+            carlos_gain.append(carlos_start - carlos_finish)
+        except:
+            alex_gain.append(0)
+            carlos_gain.append(0)
+    else:
+        alex_gain.append(0)
+        carlos_gain.append(0)
+
     laps_list.append(laps)
     race_names.append(race_name) #gets the race name to plot
 
@@ -113,6 +132,8 @@ qualifying_dataframe = pd.DataFrame({#sets the data for if qualifying is selecte
     'Alex': alex_qualifying,
     'Carlos': carlos_qualifying
 })
+
+
 
 
 st.set_page_config(page_title="Williams Driver Comparisons", layout="wide")
@@ -192,5 +213,43 @@ points_df = pd.DataFrame({
     "Points": [total_alex, total_carlos]
 })
 
-st.bar_chart(points_df.set_index("Driver"))
+st.bar_chart(points_df.set_index("Driver")) #draws bar chart for championship points
+
+
+top10_alex = sum(1 for pos in alex_results if pos and pos <= 10)# Counts top 10 finishes
+top10_carlos = sum(1 for pos in carlos_results if pos and pos <= 10)
+
+
+top10_df = pd.DataFrame({
+    "Driver": ["Alex Albon", "Carlos Sainz"],
+    "Top 10 Finishes": [top10_alex, top10_carlos]
+})
+
+st.subheader("Top 10 Finishes")
+st.table(top10_df.set_index("Driver"))
+
+st.subheader("Positions Gained Per Race")
+
+gain_df = pd.DataFrame({
+    "Race": race_names,
+    "Alex": alex_gain,
+    "Carlos": carlos_gain
+})
+
+
+fig_gain, ax_gain = plt.subplots(figsize=(12, 5))
+
+x = range(len(race_names))
+ax_gain.bar([i - 0.2 for i in x], gain_df['Alex'], width=0.4, label='ALB', color='royalblue')
+ax_gain.bar([i + 0.2 for i in x], gain_df['Carlos'], width=0.4, label='SAI', color='red')#sets values for bars
+
+ax_gain.set_xticks(x)
+ax_gain.set_xticklabels(race_names, rotation=90)
+ax_gain.set_ylabel("Positions Gained")
+ax_gain.set_title("Positions Gained (Grid → Finish)")
+ax_gain.legend()
+
+st.pyplot(fig_gain) #plots barchart
+
+
 
