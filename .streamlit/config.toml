@@ -1,0 +1,7 @@
+[theme]
+base = "light"
+primaryColor = "#005AFF"  # Williams Blue
+backgroundColor = "#F4F7FC" # Williams white
+secondaryBackgroundColor = "#FFFFFF"
+textColor = "#000000"
+font = "sans serif"

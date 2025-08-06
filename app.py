@@ -40,6 +40,8 @@ races = [('Australia', 1),
          ]
 
 
+
+
 @st.cache_data(show_spinner= True) #tells streamlit to cache the output of the function and shows spinenr the first time it loads
 def load_results(year, race_number): #function to load results from fastf1 and save in needed variables
     try:
@@ -68,7 +70,6 @@ def get_position(results, driver_initials):
 
     
 
-        
 
 alex_results = []
 carlos_results = []
@@ -137,7 +138,14 @@ qualifying_dataframe = pd.DataFrame({#sets the data for if qualifying is selecte
 
 
 st.set_page_config(page_title="Williams Driver Comparisons", layout="wide")
-st.title("Williams Driver Comparisons") #setting up UI
+# st.title("Williams Driver Comparisons") #setting up UI
+col1, col2 = st.columns([1, 6])
+with col1:
+    st.image("images/Logo_Williams_F1.png", width=80)
+with col2:
+    st.title("Williams Driver Comparisons")
+
+st.divider()
 
 
 page = st.radio("Select Comparisons: ", ["Race Results", "Qualifying Positions"])#radio button to choose filter
@@ -184,6 +192,8 @@ else:
     #     plt.title(f'Tyre Usage for {Driver_initials}')
     #     plt.show()
 
+st.divider()
+
 st.header("Tyre Usage Pie Chart")
 
 selected_race = st.selectbox("Select Race", race_names)#gets race and driver to make pie chart
@@ -197,12 +207,14 @@ if laps_for_race is not None:
     driver_laps = laps_for_race.pick_driver(driver_initials)
     compound_counts = driver_laps['Compound'].value_counts()
     
-    fig2, ax2 = plt.subplots(figsize=(1,1)) #draws pie chart
+    fig2, ax2 = plt.subplots(figsize = (3,3), dpi = 300) #draws pie chart
     ax2.pie(compound_counts, labels=compound_counts.index, autopct='%1.1f%%', startangle=140, textprops={'fontsize': 4})
     ax2.set_title(f'Tyre Usage for {driver_initials} at {selected_race}', fontsize = 5)
     st.pyplot(fig2)
 else:
     st.write(f"No lap data available for {selected_race}") #shows message for if there was no results
+
+st.divider()
 
 st.subheader("Championship Points")
 total_alex = sum(alex_points)
@@ -225,8 +237,12 @@ top10_df = pd.DataFrame({
     "Top 10 Finishes": [top10_alex, top10_carlos]
 })
 
+st.divider()
+
 st.subheader("Top 10 Finishes")
 st.table(top10_df.set_index("Driver"))
+
+st.divider()
 
 st.subheader("Positions Gained Per Race")
 
@@ -250,6 +266,29 @@ ax_gain.set_title("Positions Gained (Grid → Finish)")
 ax_gain.legend()
 
 st.pyplot(fig_gain) #plots barchart
+
+
+st.divider()
+st.header("Driver Summary")
+
+valid_alex_qual = [q for q in alex_qualifying if q is not None]
+valid_carlos_qual = [q for q in carlos_qualifying if q is not None]
+
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.subheader("Alex")
+    st.metric("Total Points", total_alex)
+    st.metric("Average Qualifying", round(sum(valid_alex_qual) / len(valid_alex_qual), 1))
+    st.metric("Top 10 Finishes", top10_alex)
+
+with col2:
+    st.subheader("Carlos")
+    st.metric("Total Points", total_carlos)
+    st.metric("Average Qualifying", round(sum(valid_carlos_qual) / len(valid_carlos_qual), 1))
+    st.metric("Top 10 Finishes", top10_carlos)
+
 
 
 
