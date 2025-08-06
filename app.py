@@ -155,7 +155,7 @@ else:
     df = qualifying_dataframe
     title = "Qualifying Position"
 
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(figsize=(8,2))
 
 if not show_Alex and not show_Carlos:#makes sure at least one driver is chosen
     st.write("Please select a driver to view data")
@@ -197,9 +197,9 @@ if laps_for_race is not None:
     driver_laps = laps_for_race.pick_driver(driver_initials)
     compound_counts = driver_laps['Compound'].value_counts()
     
-    fig2, ax2 = plt.subplots(figsize=(5,5)) #draws pie chart
-    ax2.pie(compound_counts, labels=compound_counts.index, autopct='%1.1f%%', startangle=140)
-    ax2.set_title(f'Tyre Usage for {driver_initials} at {selected_race}')
+    fig2, ax2 = plt.subplots(figsize=(1,1)) #draws pie chart
+    ax2.pie(compound_counts, labels=compound_counts.index, autopct='%1.1f%%', startangle=140, textprops={'fontsize': 4})
+    ax2.set_title(f'Tyre Usage for {driver_initials} at {selected_race}', fontsize = 5)
     st.pyplot(fig2)
 else:
     st.write(f"No lap data available for {selected_race}") #shows message for if there was no results
@@ -237,7 +237,7 @@ gain_df = pd.DataFrame({
 })
 
 
-fig_gain, ax_gain = plt.subplots(figsize=(12, 5))
+fig_gain, ax_gain = plt.subplots(figsize=(7, 2))
 
 x = range(len(race_names))
 ax_gain.bar([i - 0.2 for i in x], gain_df['Alex'], width=0.4, label='ALB', color='royalblue')

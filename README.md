@@ -24,3 +24,5 @@ How to run:
 2. Make sure you have Python and pip installed
 3. Install dependencies: pip install streamlit pandas matplotlib fastf1
 4. Run the Streamlit app: streamlit run app.py
+
+Note: Due to the amount of data cached the first load of the app will take an extended period of time.
